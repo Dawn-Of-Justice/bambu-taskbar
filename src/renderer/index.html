@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bambu Taskbar</title>
+</head>
+
+<body>
+  <header class="titlebar">
+    <svg class="titlebar-logo" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-width="2" />
+      <path d="M8 2a6 6 0 0 1 5.2 9" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    <span class="titlebar-title">Bambu Taskbar</span>
+  </header>
+
+  <main class="content">
+    <!-- Live print status -->
+    <section class="hero card" id="hero" data-state="offline" aria-live="polite">
+      <div class="hero-ring" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-track" cx="60" cy="60" r="52" />
+          <circle class="ring-fill" id="ring_fill" cx="60" cy="60" r="52" pathLength="100" />
+        </svg>
+        <div class="ring-label"><span id="hero_percent">--</span><span class="ring-unit">%</span></div>
+      </div>
+      <div class="hero-text">
+        <div class="hero-printer" id="hero_printer">No printer set up</div>
+        <div class="hero-file" id="hero_file">Add your printer below</div>
+        <div class="hero-meta">
+          <span class="chip" id="hero_chip">Not connected</span>
+          <span class="hero-detail" id="hero_detail"></span>
+        </div>
+        <dl class="hero-stats" id="hero_stats">
+          <div><dt>Time left</dt><dd id="stat_left">--</dd></div>
+          <div><dt>Done at</dt><dd id="stat_eta">--</dd></div>
+          <div><dt>Layer</dt><dd id="stat_layer">--</dd></div>
+          <div><dt>Nozzle</dt><dd id="stat_nozzle">--</dd></div>
+          <div><dt>Bed</dt><dd id="stat_bed">--</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- Printer connection -->
+    <h2 class="section-title">Printer</h2>
+    <div class="card-group">
+      <div class="card row">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20"><path d="M8.5 11.5l3-3M7 9.5 5.6 10.9a2.5 2.5 0 0 0 3.5 3.5l1.4-1.4M13 10.5l1.4-1.4a2.5 2.5 0 0 0-3.5-3.5L9.5 7" /></svg>
+        </span>
+        <div class="row-text">
+          <div class="row-title">Connect through</div>
+          <div class="row-desc" id="mode_desc"></div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Connection type">
+          <label><input type="radio" name="conn_mode" value="cloud" /><span>Bambu account</span></label>
+          <label><input type="radio" name="conn_mode" value="lan" /><span>Local network</span></label>
+        </div>
+      </div>
+
+      <!-- Bambu account -->
+      <div class="card-group" id="cloud_panel">
+        <div class="card row stacked" id="cloud_signin_card">
+          <form class="printer-form" id="cloud_signin" autocomplete="off">
+            <div class="row-head form-wide">
+              <span class="avatar empty" aria-hidden="true">
+                <svg viewBox="0 0 20 20"><circle cx="10" cy="7.5" r="3" /><path d="M4.5 16a5.5 5.5 0 0 1 11 0" /></svg>
+              </span>
+              <div class="row-text">
+                <div class="row-title">Sign in to Bambu Lab</div>
+                <div class="row-desc">Use the account your printer is bound to (the one in Bambu Handy). The app only keeps
+                  the sign-in token, never your password.</div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="button accent" type="button" id="cloud_browser_button">Sign in with Google, Apple or email…</button>
+              <label class="region-field">
+                <span>Region</span>
+                <select id="cloud_region" aria-label="Region">
+                  <option value="global">Global</option>
+                  <option value="china">China (bambulab.cn)</option>
+                </select>
+              </label>
+            </div>
+            <span class="form-message form-wide" id="cloud_browser_message" role="status"></span>
+            <div class="divider form-wide"><span>or with a Bambu password</span></div>
+            <label class="field">
+              <span>Email</span>
+              <input type="email" id="cloud_email" autocomplete="username" required spellcheck="false" />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input type="password" id="cloud_password" autocomplete="current-password" required />
+            </label>
+            <div class="form-actions">
+              <button class="button" type="submit" id="cloud_signin_button">Sign in</button>
+              <span class="form-message" id="cloud_signin_message" role="status"></span>
+            </div>
+          </form>
+
+          <form class="printer-form" id="cloud_code" autocomplete="off" hidden>
+            <div class="row-text form-wide">
+              <div class="row-title" id="cloud_code_title">Check your email</div>
+              <div class="row-desc" id="cloud_code_desc">Bambu Lab emailed you a verification code.</div>
+            </div>
+            <label class="field">
+              <span>Code</span>
+              <input type="text" id="cloud_code_input" inputmode="numeric" autocomplete="one-time-code" required
+                spellcheck="false" />
+            </label>
+            <div class="form-actions">
+              <button class="button accent" type="submit" id="cloud_code_button">Verify</button>
+              <button class="button subtle" type="button" id="cloud_resend">Send a new code</button>
+              <button class="button subtle" type="button" id="cloud_code_cancel">Cancel</button>
+              <span class="form-message" id="cloud_code_message" role="status"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card row" id="cloud_account" hidden>
+          <span class="avatar" id="cloud_avatar" aria-hidden="true"></span>
+          <div class="row-text">
+            <div class="row-title" id="cloud_account_email"></div>
+            <div class="row-desc" id="cloud_account_expiry"></div>
+          </div>
+          <button class="button" type="button" id="cloud_signout">Sign out</button>
+        </div>
+
+        <div class="card row stacked" id="cloud_printers_card" hidden>
+          <div class="list-head">
+            <div class="row-text">
+              <div class="row-title">Printer to show</div>
+              <div class="row-desc">Printers bound to your account.</div>
+            </div>
+            <button class="icon-button" type="button" id="cloud_refresh" title="Refresh list" aria-label="Refresh list">
+              <svg viewBox="0 0 20 20"><path d="M15.5 10a5.5 5.5 0 1 1-1.6-3.9M15.5 4v3.5H12" /></svg>
+            </button>
+          </div>
+          <div class="printer-list" id="cloud_printers" role="radiogroup" aria-label="Printer to show"></div>
+          <span class="form-message" id="cloud_printers_message" role="status"></span>
+        </div>
+      </div>
+
+      <!-- Local network -->
+      <div class="card row stacked" id="lan_panel">
+        <div class="row-text">
+          <div class="row-title">Connect over your local network</div>
+          <div class="row-desc">
+            On the printer: turn on <strong>LAN Only Mode</strong> and <strong>Developer Mode</strong>, then note the
+            <strong>access code</strong> shown there. Bambu Handy stops working in this mode.
+            <a href="#" id="open_guide">Step-by-step guide</a>
+          </div>
+        </div>
+
+        <div class="discover">
+          <button class="button" id="discover" type="button">Find printers on my network</button>
+          <span class="discover-status" id="discover_status"></span>
+        </div>
+        <div class="discovered" id="discovered"></div>
+
+        <form class="printer-form" id="printer_form" autocomplete="off">
+          <label class="field">
+            <span>Name <em>(optional)</em></span>
+            <input type="text" id="printer_name" placeholder="My P1S" maxlength="64" />
+          </label>
+          <label class="field">
+            <span>IP address</span>
+            <input type="text" id="printer_host" placeholder="192.168.1.42" required spellcheck="false" />
+          </label>
+          <label class="field">
+            <span>Serial number</span>
+            <input type="text" id="printer_serial" placeholder="01S00A000000000" required spellcheck="false" />
+          </label>
+          <label class="field">
+            <span>Access code</span>
+            <input type="password" id="printer_code" placeholder="8 characters" spellcheck="false" />
+          </label>
+          <input type="hidden" id="printer_model" />
+          <div class="form-actions">
+            <button class="button accent" type="submit" id="save_printer">Save and connect</button>
+            <span class="form-message" id="form_message" role="status"></span>
+          </div>
+        </form>
+      </div>
+      <div class="card row connection-row">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20"><path d="M3.5 8a9.5 9.5 0 0 1 13 0M6 10.6a6 6 0 0 1 8 0M8.5 13.2a2.4 2.4 0 0 1 3 0" /><circle cx="10" cy="15.6" r="0.6" /></svg>
+        </span>
+        <div class="row-text">
+          <div class="row-title">Connection</div>
+          <div class="row-desc" id="connection_message">Not set up yet.</div>
+        </div>
+        <span class="chip" id="connection_chip">Offline</span>
+      </div>
+    </div>
+
+    <!-- Taskbar icon -->
+    <h2 class="section-title">Taskbar icon</h2>
+    <div class="card-group">
+      <div class="card row stacked">
+        <div class="row-text">
+          <div class="row-title">Icon style</div>
+          <div class="row-desc">How the print appears next to the clock.</div>
+        </div>
+        <div class="style-picker" role="radiogroup" aria-label="Icon style">
+          <label class="style-option">
+            <input type="radio" name="icon_style" value="percent" />
+            <span class="style-card">
+              <span class="taskbar-swatch" id="preview_percent"></span>
+              <span class="style-label">Percentage</span>
+              <span class="style-sub">Exact number, amber when paused</span>
+            </span>
+          </label>
+          <label class="style-option">
+            <input type="radio" name="icon_style" value="ring" />
+            <span class="style-card">
+              <span class="taskbar-swatch" id="preview_ring"></span>
+              <span class="style-label">Progress ring</span>
+              <span class="style-sub">Fills up as the print goes</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <h2 class="section-title">Notifications</h2>
+    <div class="card-group">
+      <label class="card row" for="notify_finished">
+        <div class="row-text">
+          <div class="row-title">Print finished</div>
+          <div class="row-desc">When the plate is ready to take off.</div>
+        </div>
+        <input class="toggle" type="checkbox" role="switch" id="notify_finished" />
+      </label>
+      <div class="card row">
+        <div class="row-text">
+          <div class="row-title">Almost done</div>
+          <div class="row-desc">A heads-up shortly before the print ends.</div>
+        </div>
+        <div class="row-controls">
+          <select id="almost_done_minutes" aria-label="Minutes before the end"></select>
+          <input class="toggle" type="checkbox" role="switch" id="notify_almost_done" aria-label="Almost done notification" />
+        </div>
+      </div>
+      <label class="card row" for="notify_paused">
+        <div class="row-text">
+          <div class="row-title">Print paused</div>
+          <div class="row-desc">Filament ran out, a problem was detected, or someone paused it.</div>
+        </div>
+        <input class="toggle" type="checkbox" role="switch" id="notify_paused" />
+      </label>
+      <label class="card row" for="notify_failed">
+        <div class="row-text">
+          <div class="row-title">Print failed</div>
+          <div class="row-desc">Includes the printer's error code.</div>
+        </div>
+        <input class="toggle" type="checkbox" role="switch" id="notify_failed" />
+      </label>
+      <label class="card row" for="notify_started">
+        <div class="row-text">
+          <div class="row-title">Print started</div>
+          <div class="row-desc">When a new print begins.</div>
+        </div>
+        <input class="toggle" type="checkbox" role="switch" id="notify_started" />
+      </label>
+      <div class="card row">
+        <div class="row-text">
+          <div class="row-title">Test notifications</div>
+          <div class="row-desc">Check that Windows shows alerts from this app (Focus Assist can hide them).</div>
+        </div>
+        <button class="button" id="test_notification" type="button">Send test</button>
+      </div>
+    </div>
+
+    <!-- General -->
+    <h2 class="section-title">General</h2>
+    <div class="card-group">
+      <label class="card row" for="run_at_startup">
+        <div class="row-text">
+          <div class="row-title">Start with Windows</div>
+          <div class="row-desc">Launch in the tray when you sign in.</div>
+        </div>
+        <input class="toggle" type="checkbox" role="switch" id="run_at_startup" />
+      </label>
+      <label class="card row" for="allow_unverified">
+        <div class="row-text">
+          <div class="row-title">Allow unverified certificate (local network)</div>
+          <div class="row-desc">Only if connecting fails with a certificate error. The connection is still encrypted but
+            the printer's identity is not checked.</div>
+        </div>
+        <input class="toggle" type="checkbox" role="switch" id="allow_unverified" />
+      </label>
+    </div>
+
+    <!-- About -->
+    <h2 class="section-title">About</h2>
+    <div class="card-group">
+      <div class="card row">
+        <div class="row-text">
+          <div class="row-title">Bambu Taskbar <span id="app_version"></span></div>
+          <div class="row-desc">Not affiliated with Bambu Lab. Reads status from your printer over your local network.</div>
+        </div>
+        <div class="row-controls">
+          <button class="button subtle" id="open_github" type="button">GitHub</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>

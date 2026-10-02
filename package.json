@@ -1,0 +1,66 @@
+{
+  "name": "bambu-taskbar",
+  "version": "0.1.0",
+  "description": "Windows tray icon showing the progress of your Bambu Lab 3D print, read live from the printer over your local network.",
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "typecheck": "tsc --noEmit -p .",
+    "lint": "eslint --ext .ts,.tsx .",
+    "test": "node --require ts-node/register/transpile-only --test test/*.test.ts",
+    "check": "npm run typecheck && npm run lint && npm test"
+  },
+  "author": "Dawn-Of-Justice",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dawn-Of-Justice/bambu-taskbar.git"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-webpack": "^7.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "@vercel/webpack-asset-relocator-loader": "1.7.3",
+    "aedes": "^0.51.3",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "electron": "^31.2.0",
+    "eslint": "^8.47.0",
+    "eslint-plugin-import": "^2.28.1",
+    "fork-ts-checker-webpack-plugin": "^7.3.0",
+    "node-loader": "^2.0.0",
+    "selfsigned": "^2.4.1",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
+    "typescript": "~5.4.5"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
+    "mqtt": "^5.16.0",
+    "typed-emitter": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "bambu",
+    "bambu-lab",
+    "3d-printing",
+    "mqtt",
+    "tray",
+    "windows",
+    "electron"
+  ],
+  "homepage": "https://github.com/Dawn-Of-Justice/bambu-taskbar#readme",
+  "bugs": {
+    "url": "https://github.com/Dawn-Of-Justice/bambu-taskbar/issues"
+  }
+}
